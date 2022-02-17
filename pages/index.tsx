@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type Props = { imageUrl: string; nameLength: number; id: number };
 
@@ -9,12 +9,28 @@ async function isCorrectAnswer(name: string, id: number) {
   return { isCorrect: res.isCorrect, correctName: res.correctName };
 }
 
+async function getPokemonName(id: number) {
+  const res = await fetch(`/api/name?id=${id}`).then((res) => res.json());
+  return res.name;
+}
+
 export default function Home({ imageUrl, nameLength, id }: Props) {
   const [blurDegree, setBlurDegree] = useState(200);
   const [guessedWord, setGuessedWord] = useState(Array(nameLength).fill(''));
   const [pokemonsName, setPokemonsName] = useState('Guess that POKEMON!');
 
   const charArray = Array(nameLength).fill('');
+
+  useEffect(() => {
+    async function revealPokemon() {
+      const name = await getPokemonName(id);
+      setPokemonsName(`It's ${name.toUpperCase()}`);
+    }
+
+    if (blurDegree <= 50) {
+      revealPokemon();
+    }
+  });
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -28,9 +44,22 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
     }
   }
 
+  function handleChange(event, i: number) {
+    const form = event.target.form;
+    const index = [...form].indexOf(event.target);
+    if (event.target.value !== '') {
+      form.elements[index + 1].focus();
+    } else if (index !== 0) {
+      form.elements[index - 1].focus();
+    }
+    const newArr = [...guessedWord];
+    newArr[i] = event.target.value;
+    setGuessedWord(newArr);
+  }
+
   return (
     <div className={'mt-20 grid grid-cols-4'}>
-      <div className={'col-span-2 col-start-2 flex flex-col' + ''}>
+      <div className={'col-span-2 col-start-2 flex flex-col'}>
         <p className={'text text-center text-5xl text-blue-700'}>
           {pokemonsName}
         </p>
@@ -38,19 +67,18 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
           <div className={'mt-20 flex flex-row justify-around'}>
             {charArray.map((c, i) => (
               <input
+                tabIndex={i + 1}
                 className={`h-12 w-14 bg-blue-200 text-5xl`}
                 key={i}
                 maxLength={1}
                 value={guessedWord[i].value}
-                onChange={(e) => {
-                  const newArr = [...guessedWord];
-                  newArr[i] = e.target.value;
-                  setGuessedWord(newArr);
-                }}
+                onChange={(e) => handleChange(e, i)}
               />
             ))}
           </div>
-          <button type={'submit'}>Submit</button>
+          <button type={'submit'} tabIndex={99}>
+            Submit
+          </button>
         </form>
         <img src={imageUrl} className={`scale-50 blur-[${blurDegree}px]`} />
       </div>

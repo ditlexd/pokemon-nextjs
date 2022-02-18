@@ -27,7 +27,7 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
       setPokemonsName(`It's ${name.toUpperCase()}`);
     }
 
-    if (blurDegree <= 50) {
+    if (blurDegree == 0) {
       revealPokemon();
     }
   });

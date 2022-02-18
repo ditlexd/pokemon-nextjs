@@ -80,7 +80,11 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
             Submit
           </button>
         </form>
-        <img src={imageUrl} className={`scale-50 blur-[${blurDegree}px]`} />
+        <img
+          src={imageUrl}
+          className={`scale-50`}
+          style={{ filter: `blur(${blurDegree}px)` }}
+        />
       </div>
     </div>
   );

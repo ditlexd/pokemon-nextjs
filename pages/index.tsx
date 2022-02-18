@@ -60,6 +60,7 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
   return (
     <div className={'mt-20 grid grid-cols-4'}>
       <div className={'col-span-2 col-start-2 flex flex-col'}>
+        <h1>THIS IS A TEST</h1>
         <p className={'text text-center text-5xl text-blue-700'}>
           {pokemonsName}
         </p>

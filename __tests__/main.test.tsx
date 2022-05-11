@@ -3,11 +3,9 @@ import Home from '../pages';
 
 describe('Home', () => {
   it('renders a heading', () => {
-    render(<Home />);
+    render(<Home nameLength={8} imageUrl={''} id={1} />);
 
-    const heading = screen.getByRole('heading', {
-      name: /welcome to next\.js!/i,
-    });
+    const heading = screen.getByText('Guess that POKEMON!');
 
     expect(heading).toBeInTheDocument();
   });

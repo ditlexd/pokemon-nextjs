@@ -1,10 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-type Data = { name: string };
+export type GetNameResponse = { name: string };
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>,
+  res: NextApiResponse<GetNameResponse>,
 ) {
   if (!req.query.id) {
     res.status(400).end();
@@ -13,17 +13,18 @@ export default async function handler(
 
   const { id } = req.query;
 
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+
+  if (!response.ok) {
+    console.log(
+      `Error with status: ${response.status.toString()} and status text ${
+        response.statusText
+      }`,
+    );
+    throw new Error();
+  }
+
   try {
-    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-
-    if (!response.ok) {
-      throw new Error(
-        `Error with status: ${response.status.toString()} and status text ${
-          response.statusText
-        }`,
-      );
-    }
-
     const pokemon = await response.json();
     const pokemonName = pokemon.name.split('-')[0];
     res.status(200).json({ name: pokemonName });

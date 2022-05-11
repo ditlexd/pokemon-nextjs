@@ -1,25 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { checkAnswer, getName } from '../lib/APIClient';
 
 type Props = { imageUrl: string; nameLength: number; id: number };
 
 async function isCorrectAnswer(name: string, id: number) {
-  const res = await fetch(`/api/check-answer?id=${id}&name=${name}`).then(
-    (res) => res.json(),
-  );
+  const res = await checkAnswer(id, name);
   return { isCorrect: res.isCorrect, correctName: res.correctName };
 }
 
 async function getPokemonName(id: number) {
-  const res = await fetch(`/api/name?id=${id}`).then((res) => res.json());
+  const res = await getName(id);
   return res.name;
 }
 
 export default function Home({ imageUrl, nameLength, id }: Props) {
-  const [blurDegree, setBlurDegree] = useState(200);
+  const [brightness, setBrightness] = useState(0);
   const [guessedWord, setGuessedWord] = useState(Array(nameLength).fill(''));
   const [pokemonsName, setPokemonsName] = useState('Guess that POKEMON!');
-
-  const charArray = Array(nameLength).fill('');
+  const textInput = useRef(null);
 
   useEffect(() => {
     async function revealPokemon() {
@@ -27,20 +25,21 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
       setPokemonsName(`It's ${name.toUpperCase()}`);
     }
 
-    if (blurDegree == 0) {
+    if (brightness == 1) {
       revealPokemon();
     }
-  });
+  }, [brightness]);
 
   async function onSubmit(e) {
     e.preventDefault();
     const word = guessedWord.join('');
     const res = await isCorrectAnswer(word, id);
     if (res.isCorrect) {
-      setBlurDegree(0);
+      setBrightness(1);
       setPokemonsName(`It's ${res.correctName.toUpperCase()}!`);
     } else {
-      setBlurDegree((prev) => prev - 50);
+      setGuessedWord(Array(nameLength).fill(''));
+      textInput.current.focus();
     }
   }
 
@@ -63,27 +62,35 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
         <p className={'text text-center text-5xl text-blue-700'}>
           {pokemonsName}
         </p>
-        <form onSubmit={onSubmit}>
-          <div className={'mt-20 flex flex-row justify-around'}>
-            {charArray.map((c, i) => (
+        <form
+          onSubmit={onSubmit}
+          className="flex w-full flex-col items-center gap-5">
+          <div className={'mt-20 flex w-full flex-row justify-around'}>
+            {guessedWord.map((c, i) => (
               <input
+                ref={i === 0 ? textInput : undefined}
                 tabIndex={i + 1}
                 className={`h-12 w-14 bg-blue-200 text-5xl`}
                 key={i}
                 maxLength={1}
-                value={guessedWord[i].value}
+                value={guessedWord[i]}
                 onChange={(e) => handleChange(e, i)}
               />
             ))}
           </div>
-          <button type={'submit'} tabIndex={99}>
-            Submit
+          <button type="submit" tabIndex={99}>
+            <img
+              className="transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110"
+              width="100"
+              alt="Poké Ball icon"
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/512px-Pok%C3%A9_Ball_icon.svg.png"
+            />
           </button>
         </form>
         <img
           src={imageUrl}
           className={`scale-50`}
-          style={{ filter: `blur(${blurDegree}px)` }}
+          style={{ filter: `brightness(${brightness})` }}
         />
       </div>
     </div>

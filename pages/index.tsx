@@ -20,6 +20,8 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
   const textInput = useRef(null);
 
   useEffect(() => {
+    textInput.current.focus();
+
     async function revealPokemon() {
       const name = await getPokemonName(id);
       setPokemonsName(`It's ${name.toUpperCase()}`);
@@ -45,7 +47,9 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
 
   function handleChange(event, i: number) {
     const form = event.target.form;
-    const index = [...form].indexOf(event.target);
+
+    const index = event.currentTarget.tabIndex - 1;
+
     if (event.target.value !== '') {
       form.elements[index + 1].focus();
     } else if (index !== 0) {
@@ -68,6 +72,8 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
           <div className={'mt-20 flex w-full flex-row justify-around'}>
             {guessedWord.map((c, i) => (
               <input
+                data-testid={'pokemonInput' + i}
+                id={'pokemonInput' + i}
                 ref={i === 0 ? textInput : undefined}
                 tabIndex={i + 1}
                 className={`h-12 w-14 bg-blue-200 text-5xl`}
@@ -78,7 +84,7 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
               />
             ))}
           </div>
-          <button type="submit" tabIndex={99}>
+          <button type="submit" tabIndex={99} data-testid={'submit-button'}>
             <img
               className="transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110"
               width="100"

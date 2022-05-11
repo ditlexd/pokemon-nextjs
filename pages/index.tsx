@@ -16,7 +16,7 @@ async function getPokemonName(id: number) {
 export default function Home({ imageUrl, nameLength, id }: Props) {
   const [brightness, setBrightness] = useState(0);
   const [guessedWord, setGuessedWord] = useState(Array(nameLength).fill(''));
-  const [pokemonsName, setPokemonsName] = useState('Guess that POKEMON!');
+  const [headerText, setHeaderText] = useState('Guess that POKEMON!');
   const textInput = useRef(null);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
 
     async function revealPokemon() {
       const name = await getPokemonName(id);
-      setPokemonsName(`It's ${name.toUpperCase()}`);
+      setHeaderText(`It's ${name.toUpperCase()}`);
     }
 
     if (brightness == 1) {
@@ -38,7 +38,7 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
     const res = await isCorrectAnswer(word, id);
     if (res.isCorrect) {
       setBrightness(1);
-      setPokemonsName(`It's ${res.correctName.toUpperCase()}!`);
+      setHeaderText(`It's ${res.correctName.toUpperCase()}!`);
     } else {
       setGuessedWord(Array(nameLength).fill(''));
       textInput.current.focus();
@@ -62,9 +62,9 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
 
   return (
     <div className={'mt-20 grid grid-cols-4'}>
-      <div className={'col-span-2 col-start-2 flex flex-col'}>
+      <div className={'col-span-2 col-start-2'}>
         <p className={'text text-center text-5xl text-blue-700'}>
-          {pokemonsName}
+          {headerText}
         </p>
         <form
           onSubmit={onSubmit}
@@ -93,11 +93,13 @@ export default function Home({ imageUrl, nameLength, id }: Props) {
             />
           </button>
         </form>
-        <img
-          src={imageUrl}
-          className={`scale-50`}
-          style={{ filter: `brightness(${brightness})` }}
-        />
+        <div className={'flex flex w-full justify-center'}>
+          <img
+            src={imageUrl}
+            className={``}
+            style={{ filter: `brightness(${brightness})` }}
+          />
+        </div>
       </div>
     </div>
   );
